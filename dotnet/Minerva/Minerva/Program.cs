@@ -2,6 +2,7 @@ using Minerva.Common.Minio;
 using Minerva.Features.DeleteFile;
 using Minerva.Features.GetFile;
 using Minerva.Features.UploadFile;
+using Minerva.Features.UploadFiles;
 using Minio;
 
 namespace Minerva
@@ -43,6 +44,7 @@ namespace Minerva
             app.MapUploadFile();
             app.MapGetFile();
             app.MapDeleteFile();
+            app.MapUploadFiles();
 
             if (app.Environment.IsDevelopment())
             {

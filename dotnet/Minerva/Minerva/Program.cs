@@ -1,6 +1,7 @@
 using Minerva.Common.Minio;
 using Minerva.Features.DeleteFile;
 using Minerva.Features.GetFile;
+using Minerva.Features.PresignedUrl;
 using Minerva.Features.UploadFile;
 using Minerva.Features.UploadFiles;
 using Minio;
@@ -22,7 +23,7 @@ namespace Minerva
             var secretKey = minioConfig["SecretKey"];
             var useSsl = bool.Parse(minioConfig["UseSsl"] ?? "false");
 
-            // TODO : Пока не используется, но потом может пригодиться
+            // TODO : пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             builder.Services.AddOptions<MinioOptions>()
                 .Bind(builder.Configuration.GetSection(MinioOptions.SectionName));
 
@@ -43,6 +44,7 @@ namespace Minerva
 
             app.MapUploadFile();
             app.MapGetFile();
+            app.MapPresignedUrl();
             app.MapDeleteFile();
             app.MapUploadFiles();
 

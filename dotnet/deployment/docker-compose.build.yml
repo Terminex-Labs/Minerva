@@ -1,0 +1,6 @@
+services: 
+  minerva:
+    build:
+      context: ..
+      dockerfile: src/Minerva/Dockerfile
+    image: minerva:latest

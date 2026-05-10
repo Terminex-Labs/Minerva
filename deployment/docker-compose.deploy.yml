@@ -1,12 +1,13 @@
 services:
-  image: minerva:latest
-  container_name: minerva
-  ports: 
-    - "10101:8080"
-  environment:
-    - ASPNETCORE_ENVIRONMENT=Production
-    - Minio__Endpoint=<ip:port>
-    - Minio__AccessKey=<minio login>
-    - Minio__SecretKey=<minio password>
-    - Minio__UseSsl=false
-  restart: unless-stopped
+  minerva:
+    image: minerva:latest
+    container_name: minerva
+    ports:
+      - "10101:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Minio__Endpoint=46.253.143.48:9000
+      - Minio__AccessKey=LightAndStyx
+      - Minio__SecretKey=LightAndStyxYSECRETKEYfffRRR
+      - Minio__UseSsl=false
+    restart: unless-stopped

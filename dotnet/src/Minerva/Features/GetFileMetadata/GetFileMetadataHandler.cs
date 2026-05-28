@@ -5,9 +5,9 @@ using Minio.Exceptions;
 
 namespace Minerva.Features.GetFileMetadata
 {
-    public class GetFileMetadataHandler(MinioClient minioClient) : IRequestHandler<GetFileMetadataQuery, GetFileMetadataResponse>
+    public class GetFileMetadataHandler(IMinioClient minioClient) : IRequestHandler<GetFileMetadataQuery, GetFileMetadataResponse>
     {
-        private readonly MinioClient _minioClient = minioClient;
+        private readonly IMinioClient _minioClient = minioClient;
 
         public async Task<GetFileMetadataResponse> Handle(GetFileMetadataQuery request, CancellationToken cancellationToken)
         {

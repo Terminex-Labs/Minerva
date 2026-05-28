@@ -7,7 +7,7 @@ namespace Minerva.Features.GetFileMetadata
     {
         public static void MapGetFileMetadata(this IEndpointRouteBuilder app)
         {
-            app.MapPost("files/meta-data", async ([FromBody] GetFileMetadataQuery query, [FromServices] IMediator mediator, CancellationToken ct) =>
+            app.MapPost("/files/meta-data", async ([FromBody] GetFileMetadataQuery query, [FromServices] IMediator mediator, CancellationToken ct) =>
             {
                 try
                 {

@@ -1,6 +1,7 @@
 using Minerva.Common.Minio;
 using Minerva.Features.DeleteFile;
 using Minerva.Features.GetFile;
+using Minerva.Features.GetFileMetadata;
 using Minerva.Features.PresignedUrl;
 using Minerva.Features.UploadFile;
 using Minerva.Features.UploadFiles;
@@ -44,6 +45,7 @@ namespace Minerva
 
             app.MapUploadFile();
             app.MapGetFile();
+            app.MapGetFileMetadata();
             app.MapPresignedUrl();
             app.MapDeleteFile();
             app.MapUploadFiles();

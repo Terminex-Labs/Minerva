@@ -9,9 +9,7 @@ namespace Minerva.Features.GetFile
         {
             app.MapGet("/files/{bucketName}/{*objectPath}", async ([FromRoute] string bucketName, [FromRoute] string objectPath, [FromServices] IMediator mediator, CancellationToken ct) =>
             {
-                try
-                {
-                    var query = new GetFileQuery(bucketName, objectPath);
+                var query = new GetFileQuery(bucketName, objectPath);
 
                     var result = await mediator.Send(query, ct);
 
@@ -21,15 +19,6 @@ namespace Minerva.Features.GetFile
                             contentType: result.ContentType,
                             fileDownloadName: result.FileName
                         );
-                }
-                catch (FileNotFoundException ex)
-                {
-                    return Results.NotFound(ex.Message);
-                }
-                catch (Exception ex)
-                {
-                    return Results.Problem(ex.Message); // 500 Internal Server Error
-                }
             }).WithTags("Files");
         }
     }

@@ -1,11 +1,12 @@
-using Minerva.Common.Minio;
-using Minerva.Features.DeleteFile;
+using Amazon.S3;
+using Amazon.Runtime;
+using System.Reflection;
 using Minerva.Features.GetFile;
-using Minerva.Features.GetFileMetadata;
-using Minerva.Features.PresignedUrl;
 using Minerva.Features.UploadFile;
+using Minerva.Features.DeleteFile;
 using Minerva.Features.UploadFiles;
-using Minio;
+using Minerva.Features.PresignedUrl;
+using Minerva.Features.GetFileMetadata;
 
 namespace Minerva
 {
@@ -18,37 +19,32 @@ namespace Minerva
             builder.Services.AddControllers();
             builder.Services.AddOpenApi();
 
-            var minioConfig = builder.Configuration.GetSection("Minio");
-            var endpoint = minioConfig["Endpoint"];
-            var accessKey = minioConfig["AccessKey"];
-            var secretKey = minioConfig["SecretKey"];
-            var useSsl = bool.Parse(minioConfig["UseSsl"] ?? "false");
+            var awsConfig = builder.Configuration.GetSection("AWS");
+            var serviceUrl = awsConfig["ServiceURL"];
+            var accessKey = awsConfig["AccessKey"];
+            var secretKey = awsConfig["SecretKey"];
+            var forcePathStyle = bool.Parse(awsConfig["ForcePathStyle"] ?? "false");
+            var useHttp = bool.Parse(awsConfig["UseHttp"] ?? "false");
 
-            // TODO : ���� �� ������������, �� ����� ����� �����������
-            builder.Services.AddOptions<MinioOptions>()
-                .Bind(builder.Configuration.GetSection(MinioOptions.SectionName));
+            var credentials = new BasicAWSCredentials(accessKey, secretKey);
 
-            builder.Services.AddSingleton<IMinioClient>(sp =>
+            builder.Services.AddSingleton<IAmazonS3>(sp => new AmazonS3Client(credentials, new AmazonS3Config
             {
-                return new MinioClient()
-                    .WithEndpoint(endpoint)
-                    .WithCredentials(accessKey, secretKey)
-                    .WithSSL(useSsl)
-                    .Build();
-            });
+                ServiceURL = serviceUrl,
+                ForcePathStyle = forcePathStyle,
+                UseHttp = useHttp
+            }));
 
-            builder.Services.AddMediatR(cfg => 
-                cfg.RegisterServicesFromAssembly(typeof(Program).Assembly)
-            );
+            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
             var app = builder.Build();
 
-            app.MapUploadFile();
             app.MapGetFile();
-            app.MapGetFileMetadata();
-            app.MapPresignedUrl();
+            app.MapUploadFile();
             app.MapDeleteFile();
             app.MapUploadFiles();
+            app.MapPresignedUrl();
+            app.MapGetFileMetadata();
 
             if (app.Environment.IsDevelopment())
             {

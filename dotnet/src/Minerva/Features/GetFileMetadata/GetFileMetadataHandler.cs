@@ -1,30 +1,22 @@
 using MediatR;
-using Minio;
-using Minio.DataModel.Args;
-using Minio.Exceptions;
+using Amazon.S3;
 
 namespace Minerva.Features.GetFileMetadata
 {
-    public class GetFileMetadataHandler(IMinioClient minioClient) : IRequestHandler<GetFileMetadataQuery, GetFileMetadataResponse>
+    public class GetFileMetadataHandler(IAmazonS3 amazonS3) : IRequestHandler<GetFileMetadataQuery, GetFileMetadataResponse>
     {
-        private readonly IMinioClient _minioClient = minioClient;
-
         public async Task<GetFileMetadataResponse> Handle(GetFileMetadataQuery request, CancellationToken cancellationToken)
         {
             try
             {
-                var stat = await _minioClient.StatObjectAsync(new StatObjectArgs().WithBucket(request.BucketName).WithObject(request.ObjectPath), cancellationToken);
+                var stat = await amazonS3.GetObjectMetadataAsync(request.BucketName, request.ObjectPath, cancellationToken);
 
                 return new GetFileMetadataResponse
                     (
                         Path.GetFileName(request.ObjectPath),
                         stat.ContentType ?? "application/octet-stream",
-                        stat.Size
+                        stat.ContentLength
                     );
-            }
-            catch (ObjectNotFoundException)
-            {
-                throw new FileNotFoundException($"Файл '{request.ObjectPath}' не найден в бакете '{request.BucketName}'");
             }
             catch (Exception ex) when (ex is not FileNotFoundException)
             {

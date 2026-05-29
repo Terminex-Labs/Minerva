@@ -1,38 +1,33 @@
 ﻿using MediatR;
-using Minio;
-using Minio.DataModel.Args;
+using Amazon.S3;
+using Amazon.S3.Model;
 
 namespace Minerva.Features.GetFile
 {
-    public class GetFileHandler(IMinioClient minioClient) : IRequestHandler<GetFileQuery, GetFileResult>
+    public class GetFileHandler(IAmazonS3 amazonS3) : IRequestHandler<GetFileQuery, GetFileResult>
     {
-        private readonly IMinioClient _minioClient = minioClient;
-
         public async Task<GetFileResult> Handle(GetFileQuery request, CancellationToken cancellationToken)
         {
             var bucket = request.BucketName.ToLower();
             var objectName = request.ObjectPath.TrimStart('/');
 
-            var statArgs = new StatObjectArgs()
-                .WithBucket(bucket)
-                .WithObject(objectName);
+            var getRequest = new GetObjectRequest
+            {
+                BucketName = bucket,
+                Key = objectName
+            };
 
-            var stat = await _minioClient.StatObjectAsync(statArgs, cancellationToken);
-
+            using var response = await amazonS3.GetObjectAsync(getRequest, cancellationToken);
             var memoryStream = new MemoryStream();
 
-            var getArgs = new GetObjectArgs()
-                .WithBucket(bucket)
-                .WithObject(objectName)
-                .WithCallbackStream(stream => stream.CopyTo(memoryStream));
-
-            await _minioClient.GetObjectAsync(getArgs, cancellationToken);
+            await response.ResponseStream.CopyToAsync(memoryStream, cancellationToken);
 
             memoryStream.Position = 0;
 
-            return new GetFileResult(
+            return new GetFileResult
+            (
                 memoryStream,
-                stat.ContentType,
+                response.Headers.ContentType ?? "application/octet-stream",
                 Path.GetFileName(objectName)
             );
         }

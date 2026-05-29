@@ -1,14 +1,12 @@
 ﻿using MediatR;
+using Amazon.S3;
+using Amazon.S3.Model;
 using Minerva.Features.UploadFile;
-using Minio;
-using Minio.DataModel.Args;
 
 namespace Minerva.Features.UploadFiles
 {
-    public class UploadFilesHandler(IMinioClient minioClient) : IRequestHandler<UploadFilesCommand, IReadOnlyList<UploadFileResponse>>
+    public class UploadFilesHandler(IAmazonS3 amazonS3) : IRequestHandler<UploadFilesCommand, IReadOnlyList<UploadFileResponse>>
     {
-        private readonly IMinioClient _minioClient = minioClient;
-
         public async Task<IReadOnlyList<UploadFileResponse>> Handle(UploadFilesCommand request, CancellationToken cancellationToken)
         {
             var uploadedFiles = new List<UploadFileResponse>();
@@ -30,14 +28,15 @@ namespace Minerva.Features.UploadFiles
                         ? uniqueFileName
                         : $"{cleanSubFolder}/{uniqueFileName}";
 
-                    var putObjectArgs = new PutObjectArgs()
-                        .WithBucket(bucket)
-                        .WithObject(objectName)
-                        .WithStreamData(file.Content)
-                        .WithObjectSize(file.Content.Length)
-                        .WithContentType(file.ContentType);
+                    var putRequest = new PutObjectRequest
+                    {
+                        BucketName = bucket,
+                        Key = objectName,
+                        InputStream = file.Content,
+                        ContentType = file.ContentType,
+                    };
 
-                    await _minioClient.PutObjectAsync(putObjectArgs, cancellationToken);
+                    await amazonS3.PutObjectAsync(putRequest, cancellationToken);
 
                     uploadedFiles.Add(new UploadFileResponse(objectName));
                 }

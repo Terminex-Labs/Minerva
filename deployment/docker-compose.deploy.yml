@@ -6,8 +6,11 @@ services:
       - "10101:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - Minio__Endpoint=46.253.143.48:9000
-      - Minio__AccessKey=LightAndStyx
-      - Minio__SecretKey=LightAndStyxYSECRETKEYfffRRR
-      - Minio__UseSsl=false
+      - AWS__Profile=rustfs
+      - AWS__Region=us-east-1
+      - AWS__ServiceURL=http://<domen>:<port>
+      - AWS__AccessKey=<login>
+      - AWS__SecretKey=<password>
+      - AWS__UseHttp=false # Использовать https (tls) или нет
+      - AWS__ForcePathStyle=true
     restart: unless-stopped

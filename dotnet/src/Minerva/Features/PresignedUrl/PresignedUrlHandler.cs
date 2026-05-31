@@ -12,11 +12,12 @@ namespace Minerva.Features.PresignedUrl
             {
                 BucketName = request.BucketName,
                 Key = request.FileName,
-                Expires = DateTime.UtcNow.Add(TimeSpan.Parse($"{3600 * 24}")),
+                Expires = DateTime.UtcNow.AddHours(24),
                 Verb = HttpVerb.GET,
-                ContentType = InferMimeType(request.FileName),
                 Protocol = Protocol.HTTP
             };
+
+            putRequest.ResponseHeaderOverrides.ContentType = InferMimeType(request.FileName);
 
             var url = await amazonS3.GetPreSignedURLAsync(putRequest);
 
